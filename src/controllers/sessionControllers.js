@@ -16,13 +16,12 @@ exports.CreateSession = async (req, res) => {
         let sessionId = crypto.randomUUID().replaceAll("-", "");
         let PassWord = generatePassword();
         const Mac_no = await MachineService.lessOccupiedMachine();
-        console.log(Mac_no)
         EditCameraUrlLink(Mac_no.CameraUrl)
         const SessionData = {
             sessionID: sessionId,
             sessionPassword: PassWord,
             macNo: Mac_no.mac_no,
-            CameraUrl: EditCameraUrlLink(Mac_no.CameraUrl),
+            CameraUrl:EditCameraUrlLink(Mac_no.CameraUrl),
             senderName: req.query.sender
         }
         const FixedData = await SessionService.CreateSession(SessionData);
