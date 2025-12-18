@@ -66,7 +66,7 @@ exports.createGameSession = async (req, res) => {
 // =========================================================
 exports.updateGameResult = async (req, res) => {
   try {
-    const { gameId, TabletId, sessionId, gameStatus } = req.body;
+    const { gameId, TabletId, sessionId, gameStatus,Machine_id } = req.body;
 
     if (!gameId) return res.status(400).json({ message: "gameId is required" });
     if (!TabletId) return res.status(400).json({ message: "TabletId is required" });
@@ -74,12 +74,11 @@ exports.updateGameResult = async (req, res) => {
     if (!gameStatus) return res.status(400).json({ message: "gameStatus is required" });
 
     const session = await GameSession.findOne({ gameId, TabletId });
-    console.log(session,"session is not definedsession is not definedsession is not defined")
-    // if (!session) {
-    //   return res.status(404).json({ 
-    //     message: "Game session not found or sessionId mismatch" 
-    //   });
-    // }
+    if (!session) {
+      return res.status(404).json({ 
+        message: "Game session not found or sessionId mismatch" 
+      });
+    }
 
     // AUTO-GENERATE GAME NUMBER
     const nextGameNo = session.usedGames + 1;
@@ -88,11 +87,12 @@ exports.updateGameResult = async (req, res) => {
     session.results.push({
       gameStatus,
       gameNo: nextGameNo,
+      sessionId : sessionId,
+      Machine_id:Machine_id
     });
 
     // Update count
     session.usedGames = nextGameNo;
-    session.sessionId = sessionId
 
     const remainingGames = session.totalGames - session.usedGames;
 
@@ -106,8 +106,8 @@ exports.updateGameResult = async (req, res) => {
         usedGames: session.usedGames,
         totalGames: session.totalGames,
         remainingGames: 0,
-        page: "/auth"
-
+        page: "/auth",
+        record_id:session.results._id
       });
     }
 
@@ -121,7 +121,8 @@ exports.updateGameResult = async (req, res) => {
       totalGames: session.totalGames,
       remainingGames,
       nextGameNo,
-      page: "/auth"
+      page: "/auth",
+      record_id:session.results._id
     });
 
   } catch (error) {

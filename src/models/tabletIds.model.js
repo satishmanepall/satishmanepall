@@ -16,6 +16,10 @@ const TabSchema = new mongoose.Schema({
   page:{
     type:String,
     default: "/",
+  },
+  macId:{
+    type: String,
+    unique: true,
   }
 }, { timestamps: true });
 

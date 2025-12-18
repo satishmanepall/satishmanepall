@@ -17,6 +17,7 @@ exports.authMiddleware = async (req, res, next) => {
         }
     }
     catch (err) {
-        res.status(500).json({ error: "Server error", details: err.message });
+        console.log(err,"000")
+        res.status(500).json({ error: "Server error111111111111111111", details: err.message });
     }
 }

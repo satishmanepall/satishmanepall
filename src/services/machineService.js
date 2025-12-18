@@ -1,6 +1,4 @@
 const Machine = require('../models/machineModel')
-
-
 exports.lessOccupiedMachine = async () => {
     const MachineNoList = await Machine.aggregate([
   {
