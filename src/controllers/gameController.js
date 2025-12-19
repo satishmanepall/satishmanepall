@@ -22,7 +22,8 @@ exports.getTodayGameReportRecordWise = async (req, res) => {
           TabletId: 1,
           results: 1,
           createdAt: 1,
-
+          cost:1,
+          totalGames:1,
           winCount: {
             $size: {
               $filter: {
