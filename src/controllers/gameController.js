@@ -28,7 +28,7 @@ exports.getTodayGameReportRecordWise = async (req, res) => {
               $filter: {
                 input: "$results",
                 as: "r",
-                cond: { $eq: ["$$r.gameStatus", "win"] }
+                cond: { $eq: ["$$r.gameStatus", "won"] }
               }
             }
           },
