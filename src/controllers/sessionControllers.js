@@ -46,13 +46,12 @@
 // }
 
 
-
-
-
 const SessionService = require('../services/sessionService');
 const Machine = require("../models/machineModel");
 const Tab = require("../models/tabletIds.model");
 const crypto = require('crypto');
+
+const STREAM_PROTOCOL = process.env.STREAM_PROTOCOL || "https";
 
 function generatePassword(length = 12) {
   return crypto
@@ -63,13 +62,22 @@ function generatePassword(length = 12) {
 }
 
 function EditCameraUrlLink(Camera0) {
+  if (!Camera0 || typeof Camera0 !== "string") {
+    throw new Error("Invalid camera URL");
+  }
+
   const parts = Camera0.split("/");
-  return `http://${parts[2]}/rtc/v1/whep/?app=live&stream=${parts[4]}.flv`;
+
+  if (!parts[2] || !parts[4]) {
+    throw new Error("Malformed camera URL");
+  }
+
+  return `${STREAM_PROTOCOL}://${parts[2]}/rtc/v1/whep/?app=live&stream=${parts[4]}.flv`;
 }
 
 exports.CreateSession = async (req, res) => {
   try {
-    const { tab_no } = req.body;   // 👈 TAB NO FROM FRONTEND
+    const { tab_no } = req.body;
 
     if (!tab_no) {
       return res.status(400).json({
@@ -78,9 +86,7 @@ exports.CreateSession = async (req, res) => {
       });
     }
 
-    // 1️⃣ Find TAB → MAC mapping
-    const tab = await Tab.findOne({TabID:tab_no });
-
+    const tab = await Tab.findOne({ TabID: tab_no });
     if (!tab) {
       return res.status(404).json({
         status: 0,
@@ -88,7 +94,6 @@ exports.CreateSession = async (req, res) => {
       });
     }
 
-    // 2️⃣ Validate MACHINE health using MAC
     const machine = await Machine.findOne({
       mac_no: tab.macId,
       err_status: 0,
@@ -103,7 +108,6 @@ exports.CreateSession = async (req, res) => {
       });
     }
 
-    // 3️⃣ Create session details
     const sessionId = crypto.randomUUID().replaceAll("-", "");
     const PassWord = generatePassword();
 
@@ -112,20 +116,11 @@ exports.CreateSession = async (req, res) => {
       sessionPassword: PassWord,
       macNo: machine.mac_no,
       CameraUrl: EditCameraUrlLink(machine.camera0),
-      senderName: req.query.sender,
+      senderName: req.query.sender || "unknown",
     };
 
-    // 4️⃣ Save session
     const FixedData = await SessionService.CreateSession(SessionData);
 
-    if (!FixedData) {
-      return res.status(400).json({
-        status: 0,
-        message: "Session creation failed",
-      });
-    }
-
-    // 5️⃣ Response to frontend
     return res.status(200).json({
       message: "Session id Generated",
       status: 1,
@@ -145,4 +140,3 @@ exports.CreateSession = async (req, res) => {
     });
   }
 };
-
