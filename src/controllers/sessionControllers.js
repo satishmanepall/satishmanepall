@@ -64,7 +64,7 @@ function generatePassword(length = 12) {
 
 function EditCameraUrlLink(Camera0) {
   const parts = Camera0.split("/");
-  return `http://${parts[2]}:1985/rtc/v1/whep/?app=live&stream=${parts[4]}.flv`;
+  return `http://${parts[2]}/rtc/v1/whep/?app=live&stream=${parts[4]}.flv`;
 }
 
 exports.CreateSession = async (req, res) => {
